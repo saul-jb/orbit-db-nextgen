@@ -1,11 +1,11 @@
 import { deepStrictEqual, strictEqual, notStrictEqual } from 'assert'
 import rmrf from 'rimraf'
 import { copy } from 'fs-extra'
-import * as IPFS from 'ipfs-core'
 import { Log, Entry, Database, KeyStore, Identities } from '../../src/index.js'
 import { DocumentStore } from '../../src/db/index.js'
 import config from '../config.js'
 import testKeysPath from '../fixtures/test-keys-path.js'
+import createHelia from '../utils/create-helia.js'
 
 const OpLog = { Log, Entry }
 const keysPath = './testkeys'
@@ -21,7 +21,7 @@ describe('DocumentStore Database', function () {
   const databaseId = 'documentstore-AAA'
 
   before(async () => {
-    ipfs = await IPFS.create({ ...config.daemon1, repo: './ipfs1' })
+    ipfs = await createHelia()
 
     await copy(testKeysPath, keysPath)
     keystore = await KeyStore({ path: keysPath })

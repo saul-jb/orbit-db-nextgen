@@ -1,13 +1,13 @@
 import { deepStrictEqual } from 'assert'
 import rmrf from 'rimraf'
 import { copy } from 'fs-extra'
-import * as IPFS from 'ipfs-core'
 import { Log, Entry, Database, KeyStore, Identities } from '../../../src/index.js'
 import { EventStore } from '../../../src/db/index.js'
 import config from '../../config.js'
 import testKeysPath from '../../fixtures/test-keys-path.js'
 import connectPeers from '../../utils/connect-nodes.js'
 import waitFor from '../../utils/wait-for.js'
+import createHelia from '../../utils/create-helia.js'
 
 const OpLog = { Log, Entry }
 const keysPath = './testkeys'
@@ -42,8 +42,8 @@ describe('Events Database Replication', function () {
   ]
 
   before(async () => {
-    ipfs1 = await IPFS.create({ ...config.daemon1, repo: './ipfs1' })
-    ipfs2 = await IPFS.create({ ...config.daemon2, repo: './ipfs2' })
+    ipfs1 = await createHelia()
+    ipfs2 = await createHelia()
     await connectPeers(ipfs1, ipfs2)
 
     await copy(testKeysPath, keysPath)
