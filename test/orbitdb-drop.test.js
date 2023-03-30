@@ -1,8 +1,8 @@
 import { strictEqual } from 'assert'
 import rmrf from 'rimraf'
-import * as IPFS from 'ipfs-core'
 import { OrbitDB } from '../src/index.js'
 import config from './config.js'
+import createHelia from './utils/create-helia.js'
 
 describe('Drop databases', function () {
   this.timeout(5000)
@@ -12,7 +12,7 @@ describe('Drop databases', function () {
   let db
 
   before(async () => {
-    ipfs = await IPFS.create({ ...config.daemon1, repo: './ipfs' })
+    ipfs = await createHelia()
   })
 
   after(async () => {
