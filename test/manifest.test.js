@@ -3,7 +3,6 @@ import path from 'path'
 import rmrf from 'rimraf'
 import Manifest from '../src/manifest.js'
 import IPFSBlockStorage from '../src/storage/ipfs-block.js'
-import config from './config.js'
 import createHelia from './utils/create-helia.js'
 
 describe('Manifest', () => {

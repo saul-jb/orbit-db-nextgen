@@ -1,7 +1,6 @@
 import { deepStrictEqual } from 'assert'
 import rmrf from 'rimraf'
 import { OrbitDB } from '../src/index.js'
-import config from './config.js'
 import connectPeers from './utils/connect-nodes.js'
 import waitFor from './utils/wait-for.js'
 import createHelia from './utils/create-helia.js'

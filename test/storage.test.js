@@ -3,7 +3,6 @@ import rmrf from 'rimraf'
 import { copy } from 'fs-extra'
 import { Log, Identities, KeyStore } from '../src/index.js'
 import { IPFSBlockStorage, MemoryStorage, LRUStorage, ComposedStorage } from '../src/storage/index.js'
-import config from './config.js'
 import testKeysPath from './fixtures/test-keys-path.js'
 import createHelia from './utils/create-helia.js'
 

@@ -1,7 +1,6 @@
 import { strictEqual } from 'assert'
 import rmrf from 'rimraf'
 import { OrbitDB } from '../src/index.js'
-import config from './config.js'
 import createHelia from './utils/create-helia.js'
 
 describe('Drop databases', function () {

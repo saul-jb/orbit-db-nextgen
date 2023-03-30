@@ -2,7 +2,6 @@ import { strictEqual } from 'assert'
 import rmrf from 'rimraf'
 import { copy } from 'fs-extra'
 import { Log, Entry, Identities, KeyStore, IPFSBlockStorage } from '../../src/index.js'
-import config from '../config.js'
 import testKeysPath from '../fixtures/test-keys-path.js'
 import connectPeers from '../utils/connect-nodes.js'
 import getIpfsPeerId from '../utils/get-ipfs-peer-id.js'
@@ -159,7 +158,7 @@ describe('Log - Replication', function () {
         })
       }
 
-      await whileProcessingMessages(config.timeout)
+      await whileProcessingMessages(30000)
 
       const result = await Log(testIdentity1, { logId, entryStorage: storage1 })
       await result.join(log1)

@@ -3,7 +3,6 @@ import rmrf from 'rimraf'
 import fs from 'fs'
 import path from 'path'
 import { OrbitDB, isIdentity } from '../src/index.js'
-import config from './config.js'
 import connectPeers from './utils/connect-nodes.js'
 import createHelia from './utils/create-helia.js'
 

@@ -1,7 +1,6 @@
 import { strictEqual, deepStrictEqual, notStrictEqual } from 'assert'
 import rmrf from 'rimraf'
 import { OrbitDB, addDatabaseType, databaseTypes } from '../src/index.js'
-import config from './config.js'
 import createHelia from './utils/create-helia.js'
 
 const type = 'custom!'
