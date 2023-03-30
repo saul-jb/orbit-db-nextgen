@@ -256,7 +256,6 @@ describe('Database - Replication', function () {
         waitFor(() => connected2, () => true)
       ])
 
-
       const all1 = []
       const all2 = []
 

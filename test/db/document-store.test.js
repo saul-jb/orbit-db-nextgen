@@ -31,8 +31,6 @@ describe('DocumentStore Database', function () {
         testIdentity1 = await identities.createIdentity({ id: 'userA' })
       })
     ])
-
-
   })
 
   after(async () => {

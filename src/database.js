@@ -29,7 +29,6 @@ const Database = async ({ OpLog, ipfs, identity, address, name, accessController
       ]))
     ),
 
-
     indexStorage || ComposedStorage(
       ...(await Promise.all([
         LRUStorage({ size: defaultCacheSize }),

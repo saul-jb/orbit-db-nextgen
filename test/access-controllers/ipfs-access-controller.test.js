@@ -33,7 +33,7 @@ describe('IPFSAccessController', function () {
       // Setup identities
       Promise.resolve().then(async () => {
         [keystore1, keystore2] = await Promise.all([
-         Keystore({ path: dbPath1 + '/keys' }),
+          Keystore({ path: dbPath1 + '/keys' }),
           Keystore({ path: dbPath2 + '/keys' })
         ])
 
@@ -51,7 +51,7 @@ describe('IPFSAccessController', function () {
   })
 
   after(async () => {
-		await Promise.all([
+    await Promise.all([
       ipfs1?.stop(),
       ipfs2?.stop(),
       keystore1?.close(),
