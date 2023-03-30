@@ -87,7 +87,10 @@ const defaultPath = './keystore'
  * @return {KeyStore} An instance of KeyStore.
  */
 const KeyStore = async ({ storage, path } = {}) => {
-  storage = storage || await ComposedStorage(await LRUStorage({ size: 1000 }), await LevelStorage({ path: path || defaultPath }))
+  storage = storage || await ComposedStorage(...(await Promise.all([
+    LRUStorage({ size: 1000 }),
+    LevelStorage({ path: path || defaultPath })
+  ])))
 
   const close = async () => {
     await storage.close()
