@@ -30,8 +30,8 @@ describe('KeyValue-persisted Database Replication', function () {
   }
 
   before(async () => {
-    ipfs1 = await createHelia()
-    ipfs2 = await createHelia()
+    [ipfs1, ipfs2] = await Promise.all([createHelia(), createHelia()])
+
     await connectPeers(ipfs1, ipfs2)
 
     await copy(testKeysPath, keysPath)

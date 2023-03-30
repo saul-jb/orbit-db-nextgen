@@ -23,8 +23,7 @@ describe('Sync protocol', function () {
   let peerId1, peerId2
 
   before(async () => {
-    ipfs1 = await createHelia()
-    ipfs2 = await createHelia()
+    [ipfs1, ipfs2] = await Promise.all([createHelia(), createHelia()])
 
     peerId1 = ipfs1.libp2p.peerId
     peerId2 = ipfs2.libp2p.peerId

@@ -21,8 +21,8 @@ describe('Log - Replication', function () {
   let storage1, storage2
 
   before(async () => {
-    ipfs1 = await createHelia()
-    ipfs2 = await createHelia()
+    [ipfs1, ipfs2] = await Promise.all([createHelia(), createHelia()])
+
     await connectPeers(ipfs1, ipfs2)
 
     id1 = await getIpfsPeerId(ipfs1)

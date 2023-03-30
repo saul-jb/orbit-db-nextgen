@@ -49,8 +49,8 @@ describe('orbit-db - Multiple Databases', function () {
 
   // Create two IPFS instances and two OrbitDB instances (2 nodes/peers)
   before(async () => {
-    ipfs1 = await createHelia()
-    ipfs2 = await createHelia()
+    [ipfs1, ipfs2] = await Promise.all([createHelia(), createHelia()])
+
     await connectPeers(ipfs1, ipfs2)
     console.log('Peers connected')
     orbitdb1 = await OrbitDB({ ipfs: ipfs1, id: 'user1', directory: dbPath1 })

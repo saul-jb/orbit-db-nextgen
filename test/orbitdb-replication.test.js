@@ -12,8 +12,8 @@ describe('Replicating databases', function () {
   let orbitdb1, orbitdb2
 
   before(async () => {
-    ipfs1 = await createHelia()
-    ipfs2 = await createHelia()
+    [ipfs1, ipfs2] = await Promise.all([createHelia(), createHelia()])
+
     await connectPeers(ipfs1, ipfs2)
     orbitdb1 = await OrbitDB({ ipfs: ipfs1, id: 'user1', directory: './orbitdb1' })
     orbitdb2 = await OrbitDB({ ipfs: ipfs2, id: 'user2', directory: './orbitdb2' })
