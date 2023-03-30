@@ -64,40 +64,35 @@ describe('Database - Replication', function () {
   })
 
   afterEach(async () => {
-    if (db1) {
-      await db1.drop()
-      await db1.close()
+    await Promise.all([
+      Promise.resolve().then(async () => {
+        await db1?.drop()
+        await db1?.close()
+      }),
+      Promise.resolve().then(async () => {
+        await db2?.drop()
+        await db2?.close()
+      }),
+      ipfs1?.stop(),
+      ipfs2?.stop(),
+      keystore.close()
+    ])
 
-      await rmrf('./orbitdb1')
-    }
-    if (db2) {
-      await db2.drop()
-      await db2.close()
-
-      await rmrf('./orbitdb2')
-    }
-
-    if (ipfs1) {
-      await ipfs1.stop()
-    }
-
-    if (ipfs2) {
-      await ipfs2.stop()
-    }
-
-    if (keystore) {
-      await keystore.close()
-    }
-
-    await rmrf(keysPath)
-    await rmrf('./ipfs1')
-    await rmrf('./ipfs2')
+    await Promise.all([
+      rmrf(keysPath),
+      rmrf('./ipfs1'),
+      rmrf('./ipfs2'),
+      rmrf('./orbitdb1'),
+      rmrf('./orbitdb2')
+    ])
   })
 
   describe('Replicate across peers', () => {
     beforeEach(async () => {
-      db1 = await Database({ OpLog, ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' })
-      db2 = await Database({ OpLog, ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
+      [db1, db2] = await Promise.all([
+        Database({ OpLog, ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' }),
+        Database({ OpLog, ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
+      ])
     })
 
     it('replicates databases across two peers', async () => {
@@ -187,10 +182,11 @@ describe('Database - Replication', function () {
         connected = true
       }
 
-      await db2.drop()
-      await db2.close()
-
-      await rmrf('./orbitdb2')
+      await Promise.all([
+        db2.drop(),
+        db2.close(),
+        rmrf('./orbitdb2')
+      ])
 
       await db1.addOperation({ op: 'PUT', key: 1, value: 'record 1 on db 1' })
 
@@ -216,10 +212,25 @@ describe('Database - Replication', function () {
 
   describe('Options', () => {
     it('uses given ComposedStorage with MemoryStorage/IPFSBlockStorage for entryStorage', async () => {
-      const storage1 = await ComposedStorage(await MemoryStorage(), await IPFSBlockStorage({ ipfs: ipfs1, pin: true }))
-      const storage2 = await ComposedStorage(await MemoryStorage(), await IPFSBlockStorage({ ipfs: ipfs2, pin: true }))
-      db1 = await Database({ OpLog, ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1', entryStorage: storage1 })
-      db2 = await Database({ OpLog, ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2', entryStorage: storage2 })
+      const [storage1, storage2] = await Promise.all([
+        ComposedStorage(
+          ...(await Promise.all([
+            MemoryStorage(),
+            IPFSBlockStorage({ ipfs: ipfs1, pin: true })
+          ]))
+        ),
+        ComposedStorage(
+          ...(await Promise.all([
+            MemoryStorage(),
+            IPFSBlockStorage({ ipfs: ipfs2, pin: true })
+          ]))
+        )
+      ])
+
+      ;[db1, db2] = await Promise.all([
+        Database({ OpLog, ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1', entryStorage: storage1 }),
+        Database({ OpLog, ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2', entryStorage: storage2 })
+      ])
 
       let connected1 = false
       let connected2 = false
@@ -240,18 +251,28 @@ describe('Database - Replication', function () {
       await db1.addOperation({ op: 'PUT', key: 3, value: 'record 3 on db 1' })
       await db1.addOperation({ op: 'PUT', key: 4, value: 'record 4 on db 1' })
 
-      await waitFor(() => connected1, () => true)
-      await waitFor(() => connected2, () => true)
+      await Promise.all([
+        waitFor(() => connected1, () => true),
+        waitFor(() => connected2, () => true)
+      ])
+
 
       const all1 = []
-      for await (const item of db1.log.iterator()) {
-        all1.unshift(item)
-      }
-
       const all2 = []
-      for await (const item of db2.log.iterator()) {
-        all2.unshift(item)
-      }
+
+      await Promise.all([
+        Promise.resolve(async () => {
+          for await (const item of db1.log.iterator()) {
+            all1.unshift(item)
+          }
+        }),
+
+        Promise.resolve(async () => {
+          for await (const item of db2.log.iterator()) {
+            all2.unshift(item)
+          }
+        })
+      ])
 
       deepStrictEqual(all1, all2)
     })
@@ -259,8 +280,10 @@ describe('Database - Replication', function () {
 
   describe('Events', () => {
     beforeEach(async () => {
-      db1 = await Database({ OpLog, ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' })
-      db2 = await Database({ OpLog, ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
+      [db1, db2] = await Promise.all([
+        Database({ OpLog, ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' }),
+        Database({ OpLog, ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
+      ])
     })
 
     it('emits \'update\' once when one operation is added', async () => {
@@ -291,13 +314,17 @@ describe('Database - Replication', function () {
       db1.events.on('update', onUpdate1)
       db2.events.on('update', onUpdate2)
 
-      await waitFor(() => connected1, () => true)
-      await waitFor(() => connected2, () => true)
+      await Promise.all([
+        waitFor(() => connected1, () => true),
+        waitFor(() => connected2, () => true)
+      ])
 
       await db1.addOperation({ op: 'PUT', key: 1, value: 'record 1 on db 1' })
 
-      await waitFor(() => updateCount1 >= expected, () => true)
-      await waitFor(() => updateCount2 >= expected, () => true)
+      await Promise.all([
+        waitFor(() => updateCount1 >= expected, () => true),
+        waitFor(() => updateCount2 >= expected, () => true)
+      ])
 
       strictEqual(updateCount1, expected)
       strictEqual(updateCount2, expected)
@@ -331,16 +358,20 @@ describe('Database - Replication', function () {
       db1.events.on('update', onUpdate1)
       db2.events.on('update', onUpdate2)
 
-      await waitFor(() => connected1, () => true)
-      await waitFor(() => connected2, () => true)
+      await Promise.all([
+        waitFor(() => connected1, () => true),
+        waitFor(() => connected2, () => true)
+      ])
 
       await db1.addOperation({ op: 'PUT', key: 1, value: '11' })
       await db1.addOperation({ op: 'PUT', key: 2, value: '22' })
       await db1.addOperation({ op: 'PUT', key: 3, value: '33' })
       await db1.addOperation({ op: 'PUT', key: 4, value: '44' })
 
-      await waitFor(() => updateCount1 >= expected, () => true)
-      await waitFor(() => updateCount2 >= expected, () => true)
+      await Promise.all([
+        waitFor(() => updateCount1 >= expected, () => true),
+        waitFor(() => updateCount2 >= expected, () => true)
+      ])
 
       strictEqual(updateCount1, expected)
       strictEqual(updateCount2, expected)

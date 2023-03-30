@@ -51,11 +51,14 @@ describe('IPFSAccessController', function () {
   })
 
   after(async () => {
-    await Promise.all([
+		await Promise.all([
       ipfs1?.stop(),
       ipfs2?.stop(),
       keystore1?.close(),
-      keystore2?.close(),
+      keystore2?.close()
+    ])
+
+    await Promise.all([
       rmrf('./orbitdb'),
       rmrf('./ipfs1'),
       rmrf('./ipfs2')
