@@ -51,8 +51,10 @@ const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
   identity = identity || await identities.createIdentity({ id })
 
   const manifestStorage = await ComposedStorage(
-    await LRUStorage({ size: 1000 }),
-    await IPFSBlockStorage({ ipfs, pin: true })
+    ...(await Promise.all([
+      LRUStorage({ size: 1000 }),
+      IPFSBlockStorage({ ipfs, pin: true })
+    ]))
   )
 
   let databases = {}
@@ -111,12 +113,11 @@ const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
   }
 
   const stop = async () => {
-    if (keystore) {
-      await keystore.close()
-    }
-    if (manifestStorage) {
-      await manifestStorage.close()
-    }
+    await Promise.all([
+      keystore?.close(),
+      manifestStorage?.close()
+    ])
+
     databases = {}
   }
 
