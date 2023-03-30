@@ -4,8 +4,10 @@
 
 const ComposedStorage = async (storage1, storage2) => {
   const put = async (hash, data) => {
-    await storage1.put(hash, data)
-    await storage2.put(hash, data)
+    await Promise.all([
+      storage1.put(hash, data),
+      storage2.put(hash, data)
+    ])
   }
 
   const get = async (hash) => {
@@ -32,20 +34,26 @@ const ComposedStorage = async (storage1, storage2) => {
   }
 
   const merge = async (other) => {
-    await storage1.merge(other)
-    await storage2.merge(other)
-    await other.merge(storage1)
-    await other.merge(storage2)
+    await Promise.all([
+      storage1.merge(other),
+      storage2.merge(other),
+      other.merge(storage1),
+      other.merge(storage2)
+    ])
   }
 
   const clear = async () => {
-    await storage1.clear()
-    await storage2.clear()
+    await Promise.all([
+      storage1.clear(),
+      storage2.clear()
+    ])
   }
 
   const close = async () => {
-    await storage1.close()
-    await storage2.close()
+    await Promise.all([
+      storage1.close(),
+      storage2.close()
+    ])
   }
 
   return {
