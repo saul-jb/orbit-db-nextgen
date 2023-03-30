@@ -1,38 +1,12 @@
 import { OrbitDB } from '../src/index.js'
 import rmrf from 'rimraf'
-import * as IPFS from 'ipfs-core'
 import connectPeers from '../test/utils/connect-nodes.js'
 import waitFor from '../test/utils/wait-for.js'
+import createHelia from '../test/utils/create-helia.js'
 
 import { EventEmitter } from 'events'
 
 EventEmitter.defaultMaxListeners = 10000
-
-const ipfsConfig = {
-  preload: {
-    enabled: false
-  },
-  EXPERIMENTAL: {
-    pubsub: true
-  },
-  config: {
-    Addresses: {
-      API: '/ip4/127.0.0.1/tcp/0',
-      Swarm: ['/ip4/0.0.0.0/tcp/0'],
-      Gateway: '/ip4/0.0.0.0/tcp/0'
-    },
-    Bootstrap: [],
-    Discovery: {
-      MDNS: {
-        Enabled: true,
-        Interval: 0
-      },
-      webRTCStar: {
-        Enabled: false
-      }
-    }
-  }
-}
 
 ;(async () => {
   console.log('Starting benchmark...')
@@ -44,8 +18,8 @@ const ipfsConfig = {
   await rmrf('./orbitdb1')
   await rmrf('./orbitdb2')
 
-  const ipfs1 = await IPFS.create({ ...ipfsConfig, repo: './ipfs1' })
-  const ipfs2 = await IPFS.create({ ...ipfsConfig, repo: './ipfs2' })
+  const ipfs1 = await createHelia()
+  const ipfs2 = await createHelia()
   const orbitdb1 = await OrbitDB({ ipfs: ipfs1, directory: './orbitdb1' })
   const orbitdb2 = await OrbitDB({ ipfs: ipfs2, directory: './orbitdb2' })
 
