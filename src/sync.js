@@ -164,7 +164,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
       ipfs.libp2p.pubsub.removeEventListener('subscription-change', handlePeerSubscribed)
       await ipfs.libp2p.unhandle(headsSyncAddress)
       await ipfs.libp2p.pubsub.unsubscribe(address)
-      ipfs.libp2p.pubsub.removeEventListener("message", handleUpdateMessage)
+      ipfs.libp2p.pubsub.removeEventListener('message', handleUpdateMessage)
       peers.clear()
       started = false
     }
@@ -177,7 +177,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
       ipfs.libp2p.pubsub.addEventListener('subscription-change', handlePeerSubscribed)
       // Subscribe to the pubsub channel for this database through which updates are sent
       await ipfs.libp2p.pubsub.subscribe(address)
-      ipfs.libp2p.pubsub.addEventListener("message", handleUpdateMessage)
+      ipfs.libp2p.pubsub.addEventListener('message', handleUpdateMessage)
       started = true
     }
   }

@@ -108,8 +108,8 @@ describe('Log - Replication', function () {
       log2 = await Log(testIdentity2, { logId, entryStorage: storage2 })
       input1 = await Log(testIdentity1, { logId, entryStorage: storage1 })
       input2 = await Log(testIdentity2, { logId, entryStorage: storage2 })
-      ipfs1.libp2p.pubsub.addEventListener("message", handleMessage1)
-      ipfs2.libp2p.pubsub.addEventListener("message", handleMessage2)
+      ipfs1.libp2p.pubsub.addEventListener('message', handleMessage1)
+      ipfs2.libp2p.pubsub.addEventListener('message', handleMessage2)
 
       await Promise.all([
         ipfs1.libp2p.pubsub.subscribe(logId),
@@ -118,8 +118,8 @@ describe('Log - Replication', function () {
     })
 
     afterEach(async () => {
-      ipfs1.libp2p.pubsub.removeEventListener("message", handleMessage1)
-      ipfs2.libp2p.pubsub.removeEventListener("message", handleMessage2)
+      ipfs1.libp2p.pubsub.removeEventListener('message', handleMessage1)
+      ipfs2.libp2p.pubsub.removeEventListener('message', handleMessage2)
 
       await Promise.all([
         ipfs1.libp2p.pubsub.unsubscribe(logId),

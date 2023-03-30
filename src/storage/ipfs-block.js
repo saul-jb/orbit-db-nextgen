@@ -8,8 +8,6 @@ const IPFSBlockStorage = async ({ ipfs, timeout, pin } = {}) => {
 
   timeout = timeout || defaultTimeout
 
-	const blockstore = ipfs.blockstore ?? ipfs.block
-
   const put = async (hash, data) => {
     const cid = CID.parse(hash, base58btc)
 
