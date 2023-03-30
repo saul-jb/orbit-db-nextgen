@@ -27,22 +27,40 @@ describe('Database - Replication', function () {
 
   const accessController = {
     canAppend: async (entry) => {
-      const identity1 = await identities.getIdentity(entry.identity)
-      const identity2 = await identities.getIdentity(entry.identity)
+      const [identity1, identity2] = await Promise.all([
+        identities.getIdentity(entry.identity),
+        identities.getIdentity(entry.identity)
+      ])
+
       return identity1.id === testIdentity1.id || identity2.id === testIdentity2.id
     }
   }
 
   beforeEach(async () => {
-    ipfs1 = await IPFS.create({ ...config.daemon1, repo: './ipfs1' })
-    ipfs2 = await IPFS.create({ ...config.daemon2, repo: './ipfs2' })
-    await connectPeers(ipfs1, ipfs2)
+    await Promise.all([
+      // Setup IPFS nodes
+      Promise.resolve().then(async () => {
+        [ipfs1, ipfs2] = await Promise.all([
+          IPFS.create({ ...config.daemon1, repo: './ipfs1' }),
+          IPFS.create({ ...config.daemon2, repo: './ipfs2' })
+        ])
 
-    await copy(testKeysPath, keysPath)
-    keystore = await KeyStore({ path: keysPath })
-    identities = await Identities({ keystore })
-    testIdentity1 = await identities.createIdentity({ id: 'userA' })
-    testIdentity2 = await identities.createIdentity({ id: 'userB' })
+        await connectPeers(ipfs1, ipfs2)
+      }),
+
+      // Setup identities
+      Promise.resolve().then(async () => {
+        await copy(testKeysPath, keysPath)
+
+        keystore = await KeyStore({ path: keysPath })
+        identities = await Identities({ keystore })
+
+        ;[testIdentity1, testIdentity2] = await Promise.all([
+          identities.createIdentity({ id: 'userA' }),
+          identities.createIdentity({ id: 'userB' })
+        ])
+      })
+    ])
   })
 
   afterEach(async () => {
