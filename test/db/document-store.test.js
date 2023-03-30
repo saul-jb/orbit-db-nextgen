@@ -21,26 +21,31 @@ describe('DocumentStore Database', function () {
   const databaseId = 'documentstore-AAA'
 
   before(async () => {
-    ipfs = await IPFS.create({ ...config.daemon1, repo: './ipfs1' })
+    [ipfs] = await Promise.all([
+      IPFS.create({ ...config.daemon1, repo: './ipfs1' }),
 
-    await copy(testKeysPath, keysPath)
-    keystore = await KeyStore({ path: keysPath })
-    identities = await Identities({ keystore })
-    testIdentity1 = await identities.createIdentity({ id: 'userA' })
+      Promise.resolve().then(async () => {
+        await copy(testKeysPath, keysPath)
+        keystore = await KeyStore({ path: keysPath })
+        identities = await Identities({ keystore })
+        testIdentity1 = await identities.createIdentity({ id: 'userA' })
+      })
+    ])
+
+
   })
 
   after(async () => {
-    if (ipfs) {
-      await ipfs.stop()
-    }
+    await Promise.all([
+      ipfs?.stop(),
+      keystore?.close()
+    ])
 
-    if (keystore) {
-      await keystore.close()
-    }
-
-    await rmrf(keysPath)
-    await rmrf('./orbitdb')
-    await rmrf('./ipfs1')
+    await Promise.all([
+      rmrf(keysPath),
+      rmrf('./orbitdb'),
+      rmrf('./ipfs1')
+    ])
   })
 
   describe('Default index \'_id\'', () => {
