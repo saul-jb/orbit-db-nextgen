@@ -54,8 +54,11 @@ before(async () => {
     for (let user of users) {
       const privateKey1 = unmarshal(uint8ArrayFromString(user.privateKey, 'base16'))
       const privateKey2 = unmarshal(uint8ArrayFromString(user.identity.privateKey, 'base16'))
-      await keystore.addKey(user.id, { privateKey: privateKey1.marshal() })
-      await keystore.addKey(user.identity.id, { privateKey: privateKey2.marshal() })
+
+      await Promise.all([
+        keystore.addKey(user.id, { privateKey: privateKey1.marshal() }),
+        keystore.addKey(user.identity.id, { privateKey: privateKey2.marshal() })
+      ])
     }
 
     await keystore.close()
