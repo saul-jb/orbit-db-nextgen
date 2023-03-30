@@ -32,25 +32,28 @@ describe('Database', function () {
   }
 
   before(async () => {
-    ipfs = await IPFS.create({ ...config.daemon1, repo: './ipfs1' })
+    [ipfs] = await Promise.all([
+      IPFS.create({ ...config.daemon1, repo: './ipfs1' }),
 
-    await copy(testKeysPath, keysPath)
-    keystore = await KeyStore({ path: keysPath })
-    identities = await Identities({ keystore })
-    testIdentity = await identities.createIdentity({ id: 'userA' })
+      Promise.resolve().then(async () => {
+        await copy(testKeysPath, keysPath)
+        keystore = await KeyStore({ path: keysPath })
+        identities = await Identities({ keystore })
+        testIdentity = await identities.createIdentity({ id: 'userA' })
+      })
+    ])
   })
 
   after(async () => {
-    if (ipfs) {
-      await ipfs.stop()
-    }
+    await Promise.all([
+      ipfs?.stop(),
+      keystore?.close()
+    ])
 
-    if (keystore) {
-      await keystore.close()
-    }
-
-    await rmrf(keysPath)
-    await rmrf('./ipfs1')
+    await Promise.all([
+      rmrf(keysPath),
+      rmrf('./ipfs1')
+    ])
   })
 
   afterEach(async () => {
@@ -106,8 +109,10 @@ describe('Database', function () {
 
       await headsStorage.close()
 
-      await rmrf(headsPath)
-      await rmrf('./custom-directory')
+      await Promise.all([
+        rmrf(headsPath),
+        rmrf('./custom-directory')
+      ])
     })
 
     it('uses given MemoryStorage for headsStorage', async () => {
