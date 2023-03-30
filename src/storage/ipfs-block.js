@@ -3,19 +3,36 @@ import { base58btc } from 'multiformats/bases/base58'
 
 const defaultTimeout = 30000
 
-const IPFSBlockStorage = async ({ ipfs, pin } = {}) => {
+const IPFSBlockStorage = async ({ ipfs, timeout, pin } = {}) => {
   if (!ipfs) throw new Error('An instance of ipfs is required.')
+
+  timeout = timeout || defaultTimeout
+
+	const blockstore = ipfs.blockstore ?? ipfs.block
 
   const put = async (hash, data) => {
     const cid = CID.parse(hash, base58btc)
-    await ipfs.blockstore.put(cid, data)
+
+    if (ipfs.blockstore) {
+      await ipfs.blockstore.put(cid, data)
+    } else {
+      await ipfs.block.put(data, {
+        cid: cid.bytes,
+        version: cid.version,
+        format: 'dag-cbor',
+        mhtype: 'sha2-256',
+        pin,
+        timeout
+      })
+    }
   }
 
   const del = async (hash) => {}
 
   const get = async (hash) => {
     const cid = CID.parse(hash, base58btc)
-    const block = await ipfs.blockstore.get(cid)
+    const block = ipfs.blockstore ? await ipfs.blockstore.get(cid) : await ipfs.block.get(cid, { timeout })
+
     if (block) {
       return block
     }
