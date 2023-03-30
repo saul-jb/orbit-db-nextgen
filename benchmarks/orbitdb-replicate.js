@@ -16,8 +16,7 @@ EventEmitter.defaultMaxListeners = 10000
   await rmrf('./orbitdb1')
   await rmrf('./orbitdb2')
 
-  const ipfs1 = await createHelia()
-  const ipfs2 = await createHelia()
+  const [ipfs1, ipfs2] = await Promise.all([createHelia(), createHelia()])
   const orbitdb1 = await OrbitDB({ ipfs: ipfs1, directory: './orbitdb1' })
   const orbitdb2 = await OrbitDB({ ipfs: ipfs2, directory: './orbitdb2' })
 
