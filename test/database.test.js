@@ -49,7 +49,6 @@ describe('Database', function () {
     }
 
     await rmrf(keysPath)
-    await rmrf('./ipfs1')
   })
 
   afterEach(async () => {

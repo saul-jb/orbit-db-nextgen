@@ -73,9 +73,6 @@ describe('orbit-db - Multiple Databases', function () {
     if (ipfs2) {
       await ipfs2.stop()
     }
-
-    await rmrf('./ipfs1')
-    await rmrf('./ipfs2')
   })
 
   beforeEach(async () => {

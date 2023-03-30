@@ -13,8 +13,6 @@ EventEmitter.defaultMaxListeners = 10000
 
   const entryCount = 1000
 
-  await rmrf('./ipfs1')
-  await rmrf('./ipfs2')
   await rmrf('./orbitdb1')
   await rmrf('./orbitdb2')
 
@@ -76,8 +74,6 @@ EventEmitter.defaultMaxListeners = 10000
   await ipfs1.stop()
   await ipfs2.stop()
 
-  await rmrf('./ipfs1')
-  await rmrf('./ipfs2')
   await rmrf('./orbitdb1')
   await rmrf('./orbitdb2')
 

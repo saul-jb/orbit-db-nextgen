@@ -57,8 +57,6 @@ describe('KeyValue Database Replication', function () {
     await rmrf(keysPath)
     await rmrf('./orbitdb1')
     await rmrf('./orbitdb2')
-    await rmrf('./ipfs1')
-    await rmrf('./ipfs2')
   })
 
   afterEach(async () => {

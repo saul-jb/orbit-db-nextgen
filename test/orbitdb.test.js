@@ -27,8 +27,6 @@ describe('OrbitDB', function () {
     if (ipfs2) {
       await ipfs2.stop()
     }
-    await rmrf('./ipfs1')
-    await rmrf('./ipfs2')
   })
 
   describe('OrbitDB instance creation - defaults', () => {

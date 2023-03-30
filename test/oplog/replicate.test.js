@@ -57,8 +57,6 @@ describe('Log - Replication', function () {
     await storage2.close()
 
     await rmrf(keysPath)
-    await rmrf('./ipfs1')
-    await rmrf('./ipfs2')
   })
 
   describe('replicates logs deterministically', async function () {

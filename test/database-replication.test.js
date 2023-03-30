@@ -71,8 +71,6 @@ describe('Database - Replication', function () {
     }
 
     await rmrf(keysPath)
-    await rmrf('./ipfs1')
-    await rmrf('./ipfs2')
   })
 
   describe('Replicate across peers', () => {

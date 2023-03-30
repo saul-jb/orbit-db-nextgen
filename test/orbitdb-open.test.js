@@ -29,8 +29,6 @@ describe('Open databases', function () {
     }
     await rmrf('./orbitdb1')
     await rmrf('./orbitdb2')
-    await rmrf('./ipfs1')
-    await rmrf('./ipfs2')
   })
 
   describe('creating a database instance', () => {

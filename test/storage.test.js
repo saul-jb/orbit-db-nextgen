@@ -34,7 +34,6 @@ describe('Storages', function () {
       await keystore.close()
     }
 
-    await rmrf('./ipfs1')
     await rmrf(keysPath)
   })
 

@@ -38,7 +38,6 @@ describe('Add a custom database type', function () {
     delete databaseTypes[CustomStore.type]
 
     await rmrf('./orbitdb')
-    await rmrf('./ipfs1')
   })
 
   describe('Default supported database types', function () {

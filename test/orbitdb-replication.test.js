@@ -22,8 +22,6 @@ describe('Replicating databases', function () {
   after(async () => {
     await ipfs1.stop()
     await ipfs2.stop()
-    await rmrf('./ipfs1')
-    await rmrf('./ipfs2')
     await orbitdb1.stop()
     await orbitdb2.stop()
     await rmrf('./orbitdb1')

@@ -41,8 +41,6 @@ describe('Write Permissions', function () {
     }
 
     await rmrf('./orbitdb')
-    await rmrf('./ipfs1')
-    await rmrf('./ipfs2')
   })
 
   it('throws an error if a peer writes to a log with default write access', async () => {

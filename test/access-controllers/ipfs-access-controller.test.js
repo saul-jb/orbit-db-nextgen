@@ -51,8 +51,6 @@ describe('IPFSAccessController', function () {
     }
 
     await rmrf('./orbitdb')
-    await rmrf('./ipfs1')
-    await rmrf('./ipfs2')
   })
 
   let accessController

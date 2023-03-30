@@ -39,7 +39,6 @@ describe('DocumentStore Database', function () {
 
     await rmrf(keysPath)
     await rmrf('./orbitdb')
-    await rmrf('./ipfs1')
   })
 
   describe('Default index \'_id\'', () => {

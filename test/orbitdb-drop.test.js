@@ -19,7 +19,6 @@ describe('Drop databases', function () {
       await ipfs.stop()
     }
     await rmrf('./orbitdb')
-    await rmrf('./ipfs')
   })
 
   describe('dropping a database', () => {

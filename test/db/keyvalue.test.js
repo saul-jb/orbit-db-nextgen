@@ -39,7 +39,6 @@ describe('KeyValue Database', function () {
 
     await rmrf(keysPath)
     await rmrf('./orbitdb')
-    await rmrf('./ipfs1')
   })
 
   describe('Creating a KeyValue database', () => {

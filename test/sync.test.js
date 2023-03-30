@@ -23,9 +23,6 @@ describe('Sync protocol', function () {
   let peerId1, peerId2
 
   before(async () => {
-    await rmrf('./ipfs1')
-    await rmrf('./ipfs2')
-
     ipfs1 = await createHelia()
     ipfs2 = await createHelia()
 
@@ -44,8 +41,6 @@ describe('Sync protocol', function () {
   after(async () => {
     await ipfs1.stop()
     await ipfs2.stop()
-    await rmrf('./ipfs1')
-    await rmrf('./ipfs2')
     if (keystore) {
       await keystore.close()
     }
