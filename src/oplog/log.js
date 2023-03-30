@@ -57,14 +57,22 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
   }
   // Set Log's id
   const id = logId || randomId()
+
+  const promiseResults = await Promise.all([
+    access || DefaultAccessController(),
+    entryStorage || DefaultStorage(),
+    indexStorage || DefaultStorage(),
+    headsStorage = headsStorage || DefaultStorage()
+  ])
+
   // Access Controller
-  access = access || await DefaultAccessController()
+  access = promiseResults[0]
   // Oplog entry storage
-  const _entries = entryStorage || await DefaultStorage()
+  const _entries = promiseResults[1]
   // Entry index for keeping track which entries are already in the log
-  const _index = indexStorage || await DefaultStorage()
+  const _index = promiseResults[2]
   // Heads storage
-  headsStorage = headsStorage || await DefaultStorage()
+  headsStorage = promiseResults[3]
   // Add heads to the state storage, ie. init the log state
   const _heads = await Heads({ storage: headsStorage, heads: logHeads })
   // Conflict-resolution sorting function
@@ -155,12 +163,14 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
       throw new Error(`Could not append entry:\nKey "${identity.hash}" is not allowed to write to the log`)
     }
 
-    // The appended entry is now the latest head
-    await _heads.set([entry])
-    // Add entry to the entry storage
-    await _entries.put(entry.hash, entry.bytes)
-    // Add entry to the entry index
-    await _index.put(entry.hash, true)
+    await Promise.all([
+      // The appended entry is now the latest head
+      _heads.set([entry]),
+      // Add entry to the entry storage
+      _entries.put(entry.hash, entry.bytes),
+      // Add entry to the entry index
+      _index.put(entry.hash, true)
+    ])
     // Return the appended entry
     return entry
   }
@@ -237,10 +247,13 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
       return false
     }
 
-    // Add the new entry to the entry storage
-    await _entries.put(hash, entry.bytes)
-    // Add the new entry to the entry index
-    await _index.put(hash, true)
+    await Promise.all([
+      // Add the new entry to the entry storage
+      _entries.put(hash, entry.bytes),
+      // Add the new entry to the entry index
+      _index.put(hash, true)
+    ])
+
     // We've added the entry to the log
     return true
   }
@@ -413,15 +426,19 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
   }
 
   const clear = async () => {
-    await _index.clear()
-    await _heads.clear()
-    await _entries.clear()
+    await Promise.all([
+      _index.clear(),
+      _heads.clear(),
+      _entries.clear()
+    ])
   }
 
   const close = async () => {
-    await _index.close()
-    await _heads.close()
-    await _entries.close()
+    await Promise.all([
+      _index.close(),
+      _heads.close(),
+      _entries.close()
+    ])
   }
 
   /**
