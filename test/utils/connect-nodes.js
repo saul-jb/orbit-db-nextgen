@@ -2,11 +2,11 @@
 
 const defaultFilter = () => true
 
-const connectIpfsNodes = async (helia1, helia2, options = {
+const connectIpfsNodes = async (ipfs1, ipfs2, options = {
   filter: defaultFilter
 }) => {
-  await helia1.libp2p.peerStore.addressBook.set(helia2.libp2p.peerId, helia2.libp2p.getMultiaddrs().filter(options.filter))
-  await helia1.libp2p.dial(helia2.libp2p.peerId)
+  await ipfs1.libp2p.peerStore.addressBook.set(ipfs2.libp2p.peerId, ipfs2.libp2p.getMultiaddrs().filter(options.filter))
+  await ipfs1.libp2p.dial(ipfs2.libp2p.peerId)
 }
 
 export default connectIpfsNodes
