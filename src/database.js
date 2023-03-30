@@ -14,20 +14,29 @@ const Database = async ({ OpLog, ipfs, identity, address, name, accessController
   meta = meta || {}
   referencesCount = referencesCount || defaultReferencesCount
 
-  entryStorage = entryStorage || await ComposedStorage(
-    await LRUStorage({ size: defaultCacheSize }),
-    await IPFSBlockStorage({ ipfs, pin: true })
-  )
+  ;[entryStorage, headsStorage, indexStorage] = await Promise.all([
+    entryStorage || ComposedStorage(
+      ...(await Promise.all([
+        LRUStorage({ size: defaultCacheSize }),
+        IPFSBlockStorage({ ipfs, pin: true })
+      ]))
+    ),
 
-  headsStorage = headsStorage || await ComposedStorage(
-    await LRUStorage({ size: defaultCacheSize }),
-    await LevelStorage({ path: pathJoin(directory, '/log/_heads/') })
-  )
+    headsStorage || ComposedStorage(
+      ...(await Promise.all([
+        LRUStorage({ size: defaultCacheSize }),
+        LevelStorage({ path: pathJoin(directory, '/log/_heads/') })
+      ]))
+    ),
 
-  indexStorage = indexStorage || await ComposedStorage(
-    await LRUStorage({ size: defaultCacheSize }),
-    await LevelStorage({ path: pathJoin(directory, '/log/_index/') })
-  )
+
+    indexStorage || ComposedStorage(
+      ...(await Promise.all([
+        LRUStorage({ size: defaultCacheSize }),
+        LevelStorage({ path: pathJoin(directory, '/log/_index/') })
+      ]))
+    )
+  ])
 
   const log = await Log(identity, { logId: address, access: accessController, entryStorage, headsStorage, indexStorage })
 
