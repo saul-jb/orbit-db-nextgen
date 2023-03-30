@@ -19,40 +19,47 @@ describe('IPFSAccessController', function () {
   let testIdentity1, testIdentity2
 
   before(async () => {
-    ipfs1 = await IPFS.create({ ...config.daemon1, repo: './ipfs1' })
-    ipfs2 = await IPFS.create({ ...config.daemon2, repo: './ipfs2' })
-    await connectPeers(ipfs1, ipfs2)
+    await Promise.all([
+      // Setup IPFS nodes
+      Promise.resolve().then(async () => {
+        [ipfs1, ipfs2] = await Promise.all([
+          IPFS.create({ ...config.daemon1, repo: './ipfs1' }),
+          IPFS.create({ ...config.daemon2, repo: './ipfs2' })
+        ])
 
-    keystore1 = await Keystore({ path: dbPath1 + '/keys' })
-    keystore2 = await Keystore({ path: dbPath2 + '/keys' })
+        await connectPeers(ipfs1, ipfs2)
+      }),
 
-    identities1 = await Identities({ keystore: keystore1 })
-    identities2 = await Identities({ keystore: keystore2 })
+      // Setup identities
+      Promise.resolve().then(async () => {
+        [keystore1, keystore2] = await Promise.all([
+         Keystore({ path: dbPath1 + '/keys' }),
+          Keystore({ path: dbPath2 + '/keys' })
+        ])
 
-    testIdentity1 = await identities1.createIdentity({ id: 'userA' })
-    testIdentity2 = await identities2.createIdentity({ id: 'userB' })
+        ;[identities1, identities2] = await Promise.all([
+          Identities({ keystore: keystore1 }),
+          Identities({ keystore: keystore2 })
+        ])
+
+        ;[testIdentity1, testIdentity2] = await Promise.all([
+          identities1.createIdentity({ id: 'userA' }),
+          identities2.createIdentity({ id: 'userB' })
+        ])
+      })
+    ])
   })
 
   after(async () => {
-    if (ipfs1) {
-      await ipfs1.stop()
-    }
-
-    if (ipfs2) {
-      await ipfs2.stop()
-    }
-
-    if (keystore1) {
-      await keystore1.close()
-    }
-
-    if (keystore2) {
-      await keystore2.close()
-    }
-
-    await rmrf('./orbitdb')
-    await rmrf('./ipfs1')
-    await rmrf('./ipfs2')
+    await Promise.all([
+      ipfs1?.stop(),
+      ipfs2?.stop(),
+      keystore1?.close(),
+      keystore2?.close(),
+      rmrf('./orbitdb'),
+      rmrf('./ipfs1'),
+      rmrf('./ipfs2')
+    ])
   })
 
   let accessController
