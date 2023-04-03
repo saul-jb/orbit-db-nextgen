@@ -54,7 +54,7 @@ const KeyValuePersisted = async ({ OpLog, Database, ipfs, identity, address, nam
   }
 
   const close = async () => {
-    events.off('update', task)
+    events.removeEventListener('update', task)
     await queue.onIdle()
     await index.close()
     await keyValueStore.close()
@@ -62,14 +62,14 @@ const KeyValuePersisted = async ({ OpLog, Database, ipfs, identity, address, nam
 
   // TOD: rename to clear()
   const drop = async () => {
-    events.off('update', task)
+    events.removeEventListener('update', task)
     await queue.onIdle()
     await index.clear()
     await keyValueStore.drop()
   }
 
   // Listen for update events from the database and update the index on every update
-  events.on('update', task)
+	events.addEventListener('update', task)
 
   return {
     ...keyValueStore,
