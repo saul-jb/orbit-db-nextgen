@@ -61,7 +61,7 @@ describe('Replicating databases', function () {
 
       let replicated = false
 
-      const onJoin = async ({peerId, heads}) => {
+      const onJoin = async ({ peerId, heads }) => {
         const head = (await db2.log.heads())[0]
         if (head && head.clock.time === amount) {
           replicated = true
@@ -80,10 +80,10 @@ describe('Replicating databases', function () {
 
       db2 = await orbitdb2.open(db1.address)
 
-			db2.events.addEventListener('join', event => onJoin(event.detail))
-			db2.events.addEventListener('update', event => onUpdated(event.detail))
-			db1.events.addEventListener('error', event => onError(event.detail))
-			db2.events.addEventListener('error', event => onError(event.detail))
+      db2.events.addEventListener('join', event => onJoin(event.detail))
+      db2.events.addEventListener('update', event => onUpdated(event.detail))
+      db1.events.addEventListener('error', event => onError(event.detail))
+      db2.events.addEventListener('error', event => onError(event.detail))
 
       await waitFor(() => replicated, () => true)
 

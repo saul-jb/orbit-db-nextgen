@@ -77,7 +77,7 @@ describe('KeyValue-persisted Database Replication', function () {
     let replicated = false
     let expectedEntryHash = null
 
-    const onConnected = ({peerId, heads}) => {
+    const onConnected = ({ peerId, heads }) => {
       replicated = expectedEntryHash !== null && heads.map(e => e.hash).includes(expectedEntryHash)
     }
 
@@ -92,11 +92,11 @@ describe('KeyValue-persisted Database Replication', function () {
     kv1 = await KeyValuePersisted({ KeyValue, OpLog, Database, ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' })
     kv2 = await KeyValuePersisted({ KeyValue, OpLog, Database, ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
 
-		kv2.events.addEventListener('join', event => onConnected(event.detail))
-		kv2.events.addEventListener('update', event => onUpdate(event.detail))
+    kv2.events.addEventListener('join', event => onConnected(event.detail))
+    kv2.events.addEventListener('update', event => onUpdate(event.detail))
 
-		kv1.events.addEventListener('error', event => onError(event.detail))
-		kv2.events.addEventListener('error', event => onError(event.detail))
+    kv1.events.addEventListener('error', event => onError(event.detail))
+    kv2.events.addEventListener('error', event => onError(event.detail))
 
     await kv1.set('init', true)
     await kv1.set('hello', 'friend')
@@ -144,7 +144,7 @@ describe('KeyValue-persisted Database Replication', function () {
     let replicated = false
     let expectedEntryHash = null
 
-    const onConnected = ({peerId, heads}) => {
+    const onConnected = ({ peerId, heads }) => {
       replicated = expectedEntryHash !== null && heads.map(e => e.hash).includes(expectedEntryHash)
     }
 
@@ -159,11 +159,11 @@ describe('KeyValue-persisted Database Replication', function () {
     kv1 = await KeyValuePersisted({ KeyValue, OpLog, Database, ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' })
     kv2 = await KeyValuePersisted({ KeyValue, OpLog, Database, ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
 
-		kv2.events.addEventListener('join', event => onConnected(event.detail))
-		kv2.events.addEventListener('update', event => onUpdate(event.detail))
+    kv2.events.addEventListener('join', event => onConnected(event.detail))
+    kv2.events.addEventListener('update', event => onUpdate(event.detail))
 
-		kv1.events.addEventListener('error', event => onError(event.detail))
-		kv2.events.addEventListener('error', event => onError(event.detail))
+    kv1.events.addEventListener('error', event => onError(event.detail))
+    kv2.events.addEventListener('error', event => onError(event.detail))
 
     await kv1.set('init', true)
     await kv1.set('hello', 'friend')

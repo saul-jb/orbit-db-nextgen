@@ -88,7 +88,7 @@ describe('Events Database Replication', function () {
     let replicated = false
     let expectedEntryHash = null
 
-    const onConnected = ({peerId, heads}) => {
+    const onConnected = ({ peerId, heads }) => {
       replicated = expectedEntryHash !== null && heads.map(e => e.hash).includes(expectedEntryHash)
     }
 
@@ -103,11 +103,11 @@ describe('Events Database Replication', function () {
     db1 = await EventStore({ OpLog, Database, ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' })
     db2 = await EventStore({ OpLog, Database, ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
 
-		db2.events.addEventListener('join', event => onConnected(event.detail))
+    db2.events.addEventListener('join', event => onConnected(event.detail))
     db2.events.addEventListener('update', event => onUpdate(event.detail))
 
-		db1.events.addEventListener('error', event => onError(event.detail))
-		db2.events.addEventListener('error', event => onError(event.detail))
+    db1.events.addEventListener('error', event => onError(event.detail))
+    db2.events.addEventListener('error', event => onError(event.detail))
 
     await db1.add(expected[0])
     await db1.add(expected[1])
@@ -137,7 +137,7 @@ describe('Events Database Replication', function () {
     let replicated = false
     let expectedEntryHash = null
 
-    const onConnected = ({peerId, heads}) => {
+    const onConnected = ({ peerId, heads }) => {
       replicated = expectedEntryHash !== null && heads.map(e => e.hash).includes(expectedEntryHash)
     }
 
@@ -149,11 +149,11 @@ describe('Events Database Replication', function () {
       console.error(err)
     }
 
-		db2.events.addEventListener('join', event => onConnected(event.detail))
-		db2.events.addEventListener('update', event => onUpdate(event.detail))
+    db2.events.addEventListener('join', event => onConnected(event.detail))
+    db2.events.addEventListener('update', event => onUpdate(event.detail))
 
-		db1.events.addEventListener('error', event => onError(event.detail))
-		db2.events.addEventListener('error', event => onError(event.detail))
+    db1.events.addEventListener('error', event => onError(event.detail))
+    db2.events.addEventListener('error', event => onError(event.detail))
 
     await db1.add(expected[0])
     await db1.add(expected[1])

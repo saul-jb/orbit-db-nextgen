@@ -144,7 +144,7 @@ describe('Database', function () {
         closed = true
       }
 
-			db.events.addEventListener('close', onClose)
+      db.events.addEventListener('close', onClose)
 
       await db.close()
 
@@ -157,7 +157,7 @@ describe('Database', function () {
         dropped = true
       }
 
-			db.events.addEventListener('drop', onDrop)
+      db.events.addEventListener('drop', onDrop)
 
       await db.drop()
 

@@ -69,7 +69,7 @@ const KeyValuePersisted = async ({ OpLog, Database, ipfs, identity, address, nam
   }
 
   // Listen for update events from the database and update the index on every update
-	events.addEventListener('update', task)
+  events.addEventListener('update', task)
 
   return {
     ...keyValueStore,

@@ -265,7 +265,7 @@ describe('OrbitDBAccessController', function () {
         update = true
       }
 
-			accessController.events.addEventListener('update', event => onUpdate(event.detail))
+      accessController.events.addEventListener('update', event => onUpdate(event.detail))
 
       await accessController.revoke('admin', 'cats')
 
