@@ -309,7 +309,7 @@ describe('Open databases', function () {
         console.error(err)
       }
 
-      const onConnected = async (peerId, heads) => {
+      const onConnected = async ({peerId, heads}) => {
         connected = true
       }
 
@@ -319,9 +319,9 @@ describe('Open databases', function () {
 
       db2 = await orbitdb2.open(address)
 
-      db2.events.on('error', onError)
-      db2.events.on('update', onUpdate)
-      db2.events.on('join', onConnected)
+			db2.events.addEventListener('error', event => onError(event.detail))
+			db2.events.addEventListener('update', event => onUpdate(event.detail))
+			db2.events.addEventListener('join', event => onConnected(event.detail))
 
       await waitFor(() => connected, () => true)
       await waitFor(() => updateCount > 0, () => true)

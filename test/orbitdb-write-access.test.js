@@ -52,14 +52,14 @@ describe('Write Permissions', function () {
     let err
     let connected = false
 
-    const onConnected = async (peerId, heads) => {
+    const onConnected = async ({peerId, heads}) => {
       connected = true
     }
 
     const db1 = await orbitdb1.open('write-test')
     const db2 = await orbitdb2.open(db1.address)
 
-    db2.events.on('join', onConnected)
+		db2.events.addEventListener('join', event => onConnected(event.detail))
 
     await waitFor(() => connected, () => true)
 
@@ -81,7 +81,7 @@ describe('Write Permissions', function () {
     let connected = false
     let updateCount = 0
 
-    const onConnected = async (peerId, heads) => {
+    const onConnected = async ({peerId, heads}) => {
       connected = true
     }
 
@@ -92,8 +92,8 @@ describe('Write Permissions', function () {
     const db1 = await orbitdb1.open('write-test', { AccessController: IPFSAccessController({ write: ['*'] }) })
     const db2 = await orbitdb2.open(db1.address)
 
-    db2.events.on('join', onConnected)
-    db2.events.on('update', onUpdate)
+		db2.events.addEventListener('join', event => onConnected(event.detail))
+		db2.events.addEventListener('update', event => onUpdate(event.detail))
 
     await waitFor(() => connected, () => true)
 
@@ -121,7 +121,7 @@ describe('Write Permissions', function () {
         ]
       })
     }
-    const onConnected = async (peerId, heads) => {
+    const onConnected = async ({peerId, heads}) => {
       connected = true
     }
 
@@ -132,8 +132,8 @@ describe('Write Permissions', function () {
     const db1 = await orbitdb1.open('write-test', options)
     const db2 = await orbitdb2.open(db1.address)
 
-    db2.events.on('join', onConnected)
-    db2.events.on('update', onUpdate)
+		db2.events.addEventListener('join', event => onConnected(event.detail))
+		db2.events.addEventListener('update', event => onUpdate(event.detail))
 
     await waitFor(() => connected, () => true)
 
@@ -160,14 +160,14 @@ describe('Write Permissions', function () {
       })
     }
 
-    const onConnected = async (peerId, heads) => {
+    const onConnected = async ({peerId, heads}) => {
       connected = true
     }
 
     const db1 = await orbitdb1.open('write-test', options)
     const db2 = await orbitdb2.open(db1.address)
 
-    db2.events.on('join', onConnected)
+		db2.events.addEventListener('join', event => onConnected(event.detail))
 
     await waitFor(() => connected, () => true)
 
@@ -189,7 +189,7 @@ describe('Write Permissions', function () {
     let connected = false
     let updateCount = 0
 
-    const onConnected = async (peerId, heads) => {
+    const onConnected = async ({peerId, heads}) => {
       connected = true
     }
 
@@ -200,8 +200,8 @@ describe('Write Permissions', function () {
     const db1 = await orbitdb1.open('write-test', { AccessController: OrbitDBAccessController() })
     const db2 = await orbitdb2.open(db1.address, { AccessController: OrbitDBAccessController() })
 
-    db2.events.on('join', onConnected)
-    db2.events.on('update', onUpdate)
+		db2.events.addEventListener('join', event => onConnected(event.detail))
+		db2.events.addEventListener('update', event => onUpdate(event.detail))
 
     await waitFor(() => connected, () => true)
 

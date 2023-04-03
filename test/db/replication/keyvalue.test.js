@@ -77,7 +77,7 @@ describe('KeyValue Database Replication', function () {
     let replicated = false
     let expectedEntryHash = null
 
-    const onConnected = (peerId, heads) => {
+    const onConnected = ({peerId, heads}) => {
       replicated = expectedEntryHash !== null && heads.map(e => e.hash).includes(expectedEntryHash)
     }
 
@@ -92,11 +92,11 @@ describe('KeyValue Database Replication', function () {
     kv1 = await KeyValue({ OpLog, Database, ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' })
     kv2 = await KeyValue({ OpLog, Database, ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
 
-    kv2.events.on('join', onConnected)
-    kv2.events.on('update', onUpdate)
+		kv2.events.addEventListener('join', event => onConnected(event.detail))
+		kv2.events.addEventListener('update', event => onUpdate(event.detail))
 
-    kv2.events.on('error', onError)
-    kv1.events.on('error', onError)
+		kv1.events.addEventListener('error', event => onError(event.detail))
+		kv2.events.addEventListener('error', event => onError(event.detail))
 
     await kv1.set('init', true)
     await kv1.set('hello', 'friend')
@@ -144,7 +144,7 @@ describe('KeyValue Database Replication', function () {
     let replicated = false
     let expectedEntryHash = null
 
-    const onConnected = (peerId, heads) => {
+    const onConnected = ({peerId, heads}) => {
       replicated = expectedEntryHash !== null && heads.map(e => e.hash).includes(expectedEntryHash)
     }
 
@@ -159,11 +159,11 @@ describe('KeyValue Database Replication', function () {
     kv1 = await KeyValue({ OpLog, Database, ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' })
     kv2 = await KeyValue({ OpLog, Database, ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
 
-    kv2.events.on('join', onConnected)
-    kv1.events.on('join', onConnected)
-    kv2.events.on('update', onUpdate)
-    kv2.events.on('error', onError)
-    kv1.events.on('error', onError)
+		kv1.events.addEventListener('join', event => onConnected(event.detail))
+		kv2.events.addEventListener('join', event => onConnected(event.detail))
+		kv2.events.addEventListener('update', event => onUpdate(event.detail))
+		kv1.events.addEventListener('error', event => onError(event.detail))
+		kv2.events.addEventListener('error', event => onError(event.detail))
 
     await kv1.set('init', true)
     await kv1.set('hello', 'friend')
