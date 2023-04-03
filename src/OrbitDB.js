@@ -115,7 +115,7 @@ const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
 
     const db = await DatabaseModel({ OpLog, Database, ipfs, identity, address: address.toString(), name, access: accessController, directory, meta, syncAutomatically: sync != null ? sync : true })
 
-    db.events.on('close', onDatabaseClosed(address.toString()))
+    db.events.addEventListener('close', onDatabaseClosed(address.toString()))
 
     databases[address.toString()] = db
 
