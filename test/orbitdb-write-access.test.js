@@ -5,6 +5,8 @@ import OrbitDB from '../src/OrbitDB.js'
 import waitFor from './utils/wait-for.js'
 import connectPeers from './utils/connect-nodes.js'
 import createHelia from './utils/create-helia.js'
+import IPFSAccessController from '../src/access-controllers/ipfs.js'
+import OrbitDBAccessController from '../src/access-controllers/orbitdb.js'
 
 const dbPath = './orbitdb/tests/write-permissions'
 
@@ -43,7 +45,7 @@ describe('Write Permissions', function () {
     await rmrf('./orbitdb')
   })
 
-  it('throws an error if a peer writes to a log with default write access', async () => {
+  it('throws an error if another peer writes to a log with default write access', async () => {
     let err
     let connected = false
 
@@ -84,7 +86,7 @@ describe('Write Permissions', function () {
       ++updateCount
     }
 
-    const db1 = await orbitdb1.open('write-test', { write: ['*'] })
+    const db1 = await orbitdb1.open('write-test', { AccessController: IPFSAccessController({ write: ['*'] }) })
     const db2 = await orbitdb2.open(db1.address)
 
     db2.events.on('join', onConnected)
@@ -108,13 +110,14 @@ describe('Write Permissions', function () {
     let updateCount = 0
 
     const options = {
-    // Set write access for both clients
-      write: [
-        orbitdb1.identity.id,
-        orbitdb2.identity.id
-      ]
+      AccessController: IPFSAccessController({
+      // Set write access for both clients
+        write: [
+          orbitdb1.identity.id,
+          orbitdb2.identity.id
+        ]
+      })
     }
-
     const onConnected = async (peerId, heads) => {
       connected = true
     }
@@ -147,9 +150,11 @@ describe('Write Permissions', function () {
     let connected = false
 
     const options = {
-      write: [
-        orbitdb1.identity.id
-      ]
+      AccessController: IPFSAccessController({
+        write: [
+          orbitdb1.identity.id
+        ]
+      })
     }
 
     const onConnected = async (peerId, heads) => {
@@ -172,6 +177,40 @@ describe('Write Permissions', function () {
     }
 
     strictEqual(err, `Error: Could not append entry:\nKey "${db2.identity.hash}" is not allowed to write to the log`)
+
+    await db1.close()
+    await db2.close()
+  })
+
+  it('uses an OrbitDB access controller to manage access', async () => {
+    let connected = false
+    let updateCount = 0
+
+    const onConnected = async (peerId, heads) => {
+      connected = true
+    }
+
+    const onUpdate = async (entry) => {
+      ++updateCount
+    }
+
+    const db1 = await orbitdb1.open('write-test', { AccessController: OrbitDBAccessController() })
+    const db2 = await orbitdb2.open(db1.address, { AccessController: OrbitDBAccessController() })
+
+    db2.events.on('join', onConnected)
+    db2.events.on('update', onUpdate)
+
+    await waitFor(() => connected, () => true)
+
+    await db1.access.grant('write', db2.identity.id)
+    await db2.access.grant('write', db1.identity.id)
+
+    await db1.add('record 1')
+    await db2.add('record 2')
+
+    await waitFor(() => updateCount === 2, () => true)
+
+    strictEqual((await db1.all()).length, (await db2.all()).length)
 
     await db1.close()
     await db2.close()
