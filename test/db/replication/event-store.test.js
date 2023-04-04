@@ -88,26 +88,26 @@ describe('Events Database Replication', function () {
     let replicated = false
     let expectedEntryHash = null
 
-    const onConnected = ({ peerId, heads }) => {
-      replicated = expectedEntryHash !== null && heads.map(e => e.hash).includes(expectedEntryHash)
+    const onConnected = (event) => {
+      replicated = expectedEntryHash !== null && event.detail.heads.map(e => e.hash).includes(expectedEntryHash)
     }
 
-    const onUpdate = (entry) => {
-      replicated = expectedEntryHash !== null && entry.hash === expectedEntryHash
+    const onUpdate = (event) => {
+      replicated = expectedEntryHash !== null && event.detail.hash === expectedEntryHash
     }
 
-    const onError = (err) => {
-      console.error(err)
+    const onError = (event) => {
+      console.error(event.detail)
     }
 
     db1 = await EventStore({ OpLog, Database, ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' })
     db2 = await EventStore({ OpLog, Database, ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
 
-    db2.events.addEventListener('join', event => onConnected(event.detail))
-    db2.events.addEventListener('update', event => onUpdate(event.detail))
+    db2.events.addEventListener('join', onConnected)
+    db2.events.addEventListener('update', onUpdate)
 
-    db1.events.addEventListener('error', event => onError(event.detail))
-    db2.events.addEventListener('error', event => onError(event.detail))
+    db1.events.addEventListener('error', onError)
+    db2.events.addEventListener('error', onError)
 
     await db1.add(expected[0])
     await db1.add(expected[1])
@@ -137,23 +137,23 @@ describe('Events Database Replication', function () {
     let replicated = false
     let expectedEntryHash = null
 
-    const onConnected = ({ peerId, heads }) => {
-      replicated = expectedEntryHash !== null && heads.map(e => e.hash).includes(expectedEntryHash)
+    const onConnected = (event) => {
+      replicated = expectedEntryHash !== null && event.detail.heads.map(e => e.hash).includes(expectedEntryHash)
     }
 
-    const onUpdate = (entry) => {
-      replicated = expectedEntryHash !== null && entry.hash === expectedEntryHash
+    const onUpdate = (event) => {
+      replicated = expectedEntryHash !== null && event.detail.hash === expectedEntryHash
     }
 
-    const onError = (err) => {
-      console.error(err)
+    const onError = (event) => {
+      console.error(event.detail)
     }
 
-    db2.events.addEventListener('join', event => onConnected(event.detail))
-    db2.events.addEventListener('update', event => onUpdate(event.detail))
+    db2.events.addEventListener('join', onConnected)
+    db2.events.addEventListener('update', onUpdate)
 
-    db1.events.addEventListener('error', event => onError(event.detail))
-    db2.events.addEventListener('error', event => onError(event.detail))
+    db1.events.addEventListener('error', onError)
+    db2.events.addEventListener('error', onError)
 
     await db1.add(expected[0])
     await db1.add(expected[1])
