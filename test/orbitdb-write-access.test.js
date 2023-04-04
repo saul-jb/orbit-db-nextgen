@@ -93,7 +93,7 @@ describe('Write Permissions', function () {
     const db2 = await orbitdb2.open(db1.address)
 
     db2.events.addEventListener('join', onConnected)
-    db2.events.addEventListener('update', onUpdate)
+    db1.events.addEventListener('update', onUpdate)
 
     await waitFor(() => connected, () => true)
 
