@@ -13,6 +13,10 @@ const IPFSBlockStorage = async ({ ipfs, timeout, pin } = {}) => {
 
     if (ipfs.blockstore) {
       await ipfs.blockstore.put(cid, data)
+
+      if (pin && !(await ipfs.pins.isPinned(cid))) {
+        await ipfs.pins.add(cid)
+      }
     } else {
       await ipfs.block.put(data, {
         cid: cid.bytes,
