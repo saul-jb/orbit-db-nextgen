@@ -1,14 +1,13 @@
 import PQueue from 'p-queue'
 import Sync from './sync.js'
+import { Log, Entry } from './oplog/index.js'
 import { ComposedStorage, LRUStorage, IPFSBlockStorage, LevelStorage } from './storage/index.js'
 import pathJoin from './utils/path-join.js'
 
 const defaultReferencesCount = 16
 const defaultCacheSize = 1000
 
-const Database = async ({ OpLog, ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically }) => {
-  const { Log, Entry } = OpLog
-
+const Database = async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate }) => {
   directory = pathJoin(directory || './orbitdb', `./${address}/`)
   meta = meta || {}
   referencesCount = referencesCount || defaultReferencesCount
@@ -37,6 +36,9 @@ const Database = async ({ OpLog, ipfs, identity, address, name, access, director
     const task = async () => {
       const entry = await log.append(op, { referencesCount })
       await sync.add(entry)
+      if (onUpdate) {
+        await onUpdate(log, entry)
+      }
       events.dispatchEvent(new CustomEvent('update', { detail: entry }))
       return entry.hash
     }
@@ -51,6 +53,9 @@ const Database = async ({ OpLog, ipfs, identity, address, name, access, director
       if (entry) {
         const updated = await log.joinEntry(entry)
         if (updated) {
+          if (onUpdate) {
+            await onUpdate(log, entry)
+          }
           events.dispatchEvent(new CustomEvent('update', { detail: entry }))
         }
       }

@@ -2,7 +2,7 @@ import { strictEqual } from 'assert'
 // import mapSeries from 'p-each-series'
 import * as IPFS from 'ipfs-core'
 import rmrf from 'rimraf'
-import OrbitDB from '../src/OrbitDB.js'
+import OrbitDB from '../src/orbitdb.js'
 import config from './config.js'
 import connectPeers from './utils/connect-nodes.js'
 import waitFor from './utils/wait-for.js'
@@ -12,7 +12,7 @@ const dbPath2 = './orbitdb/tests/multiple-databases/2'
 
 const databaseInterfaces = [
   {
-    name: 'event-store',
+    name: 'events',
     open: async (orbitdb, address, options) => await orbitdb.open(address, options),
     write: async (db, index) => {
       await db.add('hello' + index)
