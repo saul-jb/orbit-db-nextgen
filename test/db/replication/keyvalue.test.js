@@ -1,7 +1,7 @@
 import { deepStrictEqual } from 'assert'
 import rmrf from 'rimraf'
 import { copy } from 'fs-extra'
-import { Log, Entry, Database, KeyStore, Identities } from '../../../src/index.js'
+import { KeyStore, Identities } from '../../../src/index.js'
 import { KeyValue } from '../../../src/db/index.js'
 import testKeysPath from '../../fixtures/test-keys-path.js'
 import connectPeers from '../../utils/connect-nodes.js'
