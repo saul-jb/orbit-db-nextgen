@@ -1,12 +1,20 @@
+/**
+ * @module Log
+ * @description
+ * Log is a verifiable, append-only log CRDT.
+ *
+ * Implemented as a Merkle-CRDT as per the paper:
+ * "Merkle-CRDTs: Merkle-DAGs meet CRDTs"
+ * https://arxiv.org/abs/2004.00107
+ */
 import LRU from 'lru'
 import Entry from './entry.js'
-import Clock from './lamport-clock.js'
+import Clock from './clock.js'
 import Heads from './heads.js'
-import Sorting from './sorting.js'
+import ConflictResolution from './conflict-resolution.js'
 import MemoryStorage from '../storage/memory.js'
-import pMap from 'p-map'
 
-const { LastWriteWins, NoZeroes } = Sorting
+const { LastWriteWins, NoZeroes } = ConflictResolution
 
 const randomId = () => new Date().getTime().toString()
 const maxClockTimeReducer = (res, acc) => Math.max(res, acc.clock.time)
@@ -27,16 +35,9 @@ const DefaultAccessController = async () => {
 }
 
 /**
- * @description
- * Log is a verifiable, append-only log CRDT.
- *
- * Implemented as a Merkle-CRDT as per the paper:
- * "Merkle-CRDTs: Merkle-DAGs meet CRDTs"
- * https://arxiv.org/abs/2004.00107
- */
-
-/**
  * Create a new Log instance
+
+ * @function
  * @param {IPFS} ipfs An IPFS instance
  * @param {Object} identity Identity (https://github.com/orbitdb/orbit-db-identity-provider/blob/master/src/identity.js)
  * @param {Object} options
@@ -46,9 +47,16 @@ const DefaultAccessController = async () => {
  * @param {Array<Entry>} options.heads Set the heads of the log
  * @param {Clock} options.clock Set the clock of the log
  * @param {Function} options.sortFn The sort function - by default LastWriteWins
- * @return {Log} The log instance
+ * @return {module:Log~Log} sync An instance of Log
+ * @memberof module:Log
+ * @instance
  */
 const Log = async (identity, { logId, logHeads, access, entryStorage, headsStorage, indexStorage, sortFn } = {}) => {
+  /**
+   * @namespace Log
+   * @description The instance returned by {@link module:Log}.
+   */
+
   if (identity == null) {
     throw new Error('Identity is required')
   }
@@ -72,7 +80,9 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
 
   /**
    * Returns the clock of the log.
-   * @returns {LamportClock}
+   * @returns {Clock}
+   * @memberof module:Log~Log
+   * @instance
    */
   const clock = async () => {
     // Find the latest clock from the heads
@@ -81,8 +91,11 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
   }
 
   /**
-   * Returns an array of entries
-   * @returns {Array<Entry>}
+   * Returns the current heads of the log
+   *
+   * @returns {Array<module:Log~Entry>}
+   * @memberof module:Log~Log
+   * @instance
    */
   const heads = async () => {
     const res = await _heads.all()
@@ -90,8 +103,11 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
   }
 
   /**
-   * Returns the values in the log.
-   * @returns {Promise<Array<Entry>>}
+   * Returns all entries in the log
+   *
+   * @returns {Array<module:Log~Entry>}
+   * @memberof module:Log~Log
+   * @instance
    */
   const values = async () => {
     const values = []
@@ -102,9 +118,12 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
   }
 
   /**
-   * Retrieve an entry.
-   * @param {string} [hash] The hash of the entry to retrieve
-   * @returns {Promise<Entry|undefined>}
+   * Retrieve an entry
+   *
+   * @param {string} hash The hash of the entry to retrieve
+   * @returns {module:Log~Entry}
+   * @memberof module:Log~Log
+   * @instance
    */
   const get = async (hash) => {
     const bytes = await _entries.get(hash)
@@ -121,9 +140,14 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
   }
 
   /**
-   * Append an new entry to the log.
+   * Append an new entry to the log
+   *
    * @param {data} data Payload to add to the entry
-   * @return {Promise<Entry>} Entry that was appended
+   * @param {Object} options
+   * @param {Integer} options.referencesCount TODO
+   * @return {module:Log~Entry} Entry that was appended
+   * @memberof module:Log~Log
+   * @instance
    */
   const append = async (data, options = { referencesCount: 0 }) => {
     // 1. Prepare entry
@@ -170,10 +194,14 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
    *
    * Joins another log into this one.
    *
-   * @param {Log} log Log to join with this Log
-   * @returns {Promise<Log>} This Log instance
+   * @param {module:Log~Log} log Log to join with this Log
+   *
    * @example
+   *
    * await log1.join(log2)
+   *
+   * @memberof module:Log~Log
+   * @instance
    */
   const join = async (log) => {
     if (!log) {
@@ -194,10 +222,14 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
   /**
    * Join an entry into a log.
    *
-   * @param {Entry} entry Entry to join with this Log
-   * @returns {Promise<Log>} This Log instance
+   * @param {module:Log~Entry} entry Entry to join with this Log
+   *
    * @example
+   *
    * await log.join(entry)
+   *
+   * @memberof module:Log~Log
+   * @instance
    */
   const joinEntry = async (entry) => {
     const { hash } = entry
@@ -247,6 +279,8 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
 
   /**
    * TODO
+   * @memberof module:Log~Log
+   * @instance
    */
   const traverse = async function * (rootEntries, shouldStopFn) {
     // By default, we don't stop traversal and traverse
@@ -289,14 +323,15 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
           // filter out traversed and fetched hashes
           toFetch = [...toFetch, ...next, ...refs].filter(notIndexed)
           // Function to fetch an entry and making sure it's not a duplicate (check the hash indices)
-          const fetchEntries = async (hash) => {
+          const fetchEntries = (hash) => {
             if (!traversed[hash] && !fetched[hash]) {
               fetched[hash] = true
               return get(hash)
             }
           }
           // Fetch the next/reference entries
-          const nexts = await pMap(toFetch, fetchEntries)
+          const nexts = await Promise.all(toFetch.map(fetchEntries))
+
           // Add the next and refs fields from the fetched entries to the next round
           toFetch = nexts
             .filter(e => e != null)
@@ -309,15 +344,15 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
     }
   }
 
-  /*
+  /**
    * Async iterator over the log entries
    *
    * @param {Object} options
-   * @param {amount} options.amount Number of entried to return
-   * @param {string|Array} options.gt Beginning hash of the iterator, non-inclusive
-   * @param {string|Array} options.gte Beginning hash of the iterator, inclusive
-   * @param {string|Array} options.lt Ending hash of the iterator, non-inclusive
-   * @param {string|Array} options.lte Ending hash of the iterator, inclusive
+   * @param {amount} options.amount Number of entried to return. Default: return all entries.
+   * @param {string} options.gt Beginning hash of the iterator, non-inclusive
+   * @param {string} options.gte Beginning hash of the iterator, inclusive
+   * @param {string} options.lt Ending hash of the iterator, non-inclusive
+   * @param {string} options.lte Ending hash of the iterator, inclusive
    * @returns {Symbol.asyncIterator} Iterator object of log entries
    *
    * @examples
@@ -339,7 +374,8 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
    *   }
    * })()
    *
-   *
+   * @memberof module:Log~Log
+   * @instance
    */
   const iterator = async function * ({ amount = -1, gt, gte, lt, lte } = {}) {
     // TODO: write comments on how the iterator algorithm works
@@ -412,12 +448,22 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
     }
   }
 
+  /**
+   * Clear all entries from the log and the underlying storages
+   * @memberof module:Log~Log
+   * @instance
+   */
   const clear = async () => {
     await _index.clear()
     await _heads.clear()
     await _entries.clear()
   }
 
+  /**
+   * Close the log and underlying storages
+   * @memberof module:Log~Log
+   * @instance
+   */
   const close = async () => {
     await _index.close()
     await _heads.close()
@@ -428,6 +474,8 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
    * Check if an object is a Log.
    * @param {Log} obj
    * @returns {boolean}
+   * @memberof module:Log~Log
+   * @instance
    */
   const isLog = (obj) => {
     return obj && obj.id !== undefined &&

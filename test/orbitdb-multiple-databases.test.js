@@ -1,17 +1,16 @@
 import { strictEqual } from 'assert'
-// import mapSeries from 'p-each-series'
 import rmrf from 'rimraf'
-import OrbitDB from '../src/OrbitDB.js'
+import OrbitDB from '../src/orbitdb.js'
+import createHelia from './utils/create-helia.js'
 import connectPeers from './utils/connect-nodes.js'
 import waitFor from './utils/wait-for.js'
-import createHelia from './utils/create-helia.js'
 
 const dbPath1 = './orbitdb/tests/multiple-databases/1'
 const dbPath2 = './orbitdb/tests/multiple-databases/2'
 
 const databaseInterfaces = [
   {
-    name: 'event-store',
+    name: 'events',
     open: async (orbitdb, address, options) => await orbitdb.open(address, options),
     write: async (db, index) => {
       await db.add('hello' + index)
@@ -50,7 +49,6 @@ describe('orbit-db - Multiple Databases', function () {
   // Create two IPFS instances and two OrbitDB instances (2 nodes/peers)
   before(async () => {
     [ipfs1, ipfs2] = await Promise.all([createHelia(), createHelia()])
-
     await connectPeers(ipfs1, ipfs2)
     console.log('Peers connected')
     orbitdb1 = await OrbitDB({ ipfs: ipfs1, id: 'user1', directory: dbPath1 })

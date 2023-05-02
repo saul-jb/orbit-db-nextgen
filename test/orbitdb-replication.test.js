@@ -1,19 +1,18 @@
 import { deepStrictEqual } from 'assert'
 import rmrf from 'rimraf'
 import { OrbitDB } from '../src/index.js'
+import createHelia from './utils/create-helia.js'
 import connectPeers from './utils/connect-nodes.js'
 import waitFor from './utils/wait-for.js'
-import createHelia from './utils/create-helia.js'
 
 describe('Replicating databases', function () {
-  this.timeout(60000)
+  this.timeout(30000)
 
   let ipfs1, ipfs2
   let orbitdb1, orbitdb2
 
   before(async () => {
     [ipfs1, ipfs2] = await Promise.all([createHelia(), createHelia()])
-
     await connectPeers(ipfs1, ipfs2)
     orbitdb1 = await OrbitDB({ ipfs: ipfs1, id: 'user1', directory: './orbitdb1' })
     orbitdb2 = await OrbitDB({ ipfs: ipfs2, id: 'user2', directory: './orbitdb2' })

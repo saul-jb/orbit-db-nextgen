@@ -1,6 +1,6 @@
 import { strictEqual, deepStrictEqual, notStrictEqual } from 'assert'
 import rmrf from 'rimraf'
-import OrbitDB, { AccessControllers } from '../src/OrbitDB.js'
+import OrbitDB, { AccessControllers } from '../src/orbitdb.js'
 import createHelia from './utils/create-helia.js'
 import pathJoin from '../src/utils/path-join.js'
 
@@ -40,7 +40,6 @@ describe('Add a custom access controller', function () {
     AccessControllers.remove(type)
 
     await rmrf('./orbitdb')
-    await rmrf('./ipfs1')
   })
 
   describe('Default supported access controllers', function () {

@@ -1,11 +1,14 @@
-const Events = async ({ OpLog, Database, ipfs, identity, address, name, access, directory, storage, meta, syncAutomatically }) => {
-  const database = await Database({ OpLog, ipfs, identity, address, name, access, directory, storage, meta, syncAutomatically })
+/**
+ * @namespace Database-Events
+ * @memberof module:Database
+ * @description Events Database
+ */
+import Database from '../database.js'
+
+const Events = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate }) => {
+  const database = await Database({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate })
 
   const { addOperation, log } = database
-
-  const put = async (key = null, value) => {
-    return add(value)
-  }
 
   const add = async (value) => {
     return addOperation({ op: 'ADD', key: null, value })
@@ -35,8 +38,7 @@ const Events = async ({ OpLog, Database, ipfs, identity, address, name, access, 
 
   return {
     ...database,
-    type: 'eventstore',
-    put,
+    type: 'events',
     add,
     get,
     iterator,

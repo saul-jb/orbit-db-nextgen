@@ -1,14 +1,19 @@
+/** @module Database */
 import { EventEmitter } from 'events'
 import PQueue from 'p-queue'
 import Sync from './sync.js'
+import { Log, Entry } from './oplog/index.js'
 import { ComposedStorage, LRUStorage, IPFSBlockStorage, LevelStorage } from './storage/index.js'
 import pathJoin from './utils/path-join.js'
 
 const defaultReferencesCount = 16
 const defaultCacheSize = 1000
 
-const Database = async ({ OpLog, ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically }) => {
-  const { Log, Entry } = OpLog
+const Database = async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate }) => {
+  /**
+   * @namespace module:Database~Database
+   * @description The instance returned by {@link module:Database}.
+   */
 
   directory = pathJoin(directory || './orbitdb', `./${address}/`)
   meta = meta || {}
@@ -38,6 +43,9 @@ const Database = async ({ OpLog, ipfs, identity, address, name, access, director
     const task = async () => {
       const entry = await log.append(op, { referencesCount })
       await sync.add(entry)
+      if (onUpdate) {
+        await onUpdate(log, entry)
+      }
       events.emit('update', entry)
       return entry.hash
     }
@@ -52,6 +60,9 @@ const Database = async ({ OpLog, ipfs, identity, address, name, access, director
       if (entry) {
         const updated = await log.joinEntry(entry)
         if (updated) {
+          if (onUpdate) {
+            await onUpdate(log, entry)
+          }
           events.emit('update', entry)
         }
       }

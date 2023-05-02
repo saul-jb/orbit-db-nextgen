@@ -2,13 +2,12 @@ import { deepStrictEqual } from 'assert'
 import rmrf from 'rimraf'
 import { copy } from 'fs-extra'
 import { Log, Entry, Database, KeyStore, Identities } from '../../../src/index.js'
-import { DocumentStore } from '../../../src/db/index.js'
+import { Documents } from '../../../src/db/index.js'
 import testKeysPath from '../../fixtures/test-keys-path.js'
 import connectPeers from '../../utils/connect-nodes.js'
 import waitFor from '../../utils/wait-for.js'
 import createHelia from '../../utils/create-helia.js'
 
-const OpLog = { Log, Entry }
 const keysPath = './testkeys'
 
 describe('Documents Database Replication', function () {
@@ -20,7 +19,7 @@ describe('Documents Database Replication', function () {
   let testIdentity1, testIdentity2
   let db1, db2
 
-  const databaseId = 'documentstore-AAA'
+  const databaseId = 'documents-AAA'
 
   const accessController = {
     canAppend: async (entry) => {
@@ -61,8 +60,8 @@ describe('Documents Database Replication', function () {
   })
 
   beforeEach(async () => {
-    db1 = await DocumentStore({ OpLog, Database, ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' })
-    db2 = await DocumentStore({ OpLog, Database, ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
+    db1 = await Documents()({ ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' })
+    db2 = await Documents()({ ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
   })
 
   afterEach(async () => {

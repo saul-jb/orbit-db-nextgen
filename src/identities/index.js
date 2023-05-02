@@ -1,3 +1,4 @@
+/** @module IdentityProviders */
 export {
   default as Identities,
   addIdentityProvider,
@@ -10,3 +11,5 @@ export {
   isIdentity,
   isEqual
 } from './identity.js'
+
+export { default as PublicKeyIdentityProvider } from './providers/publickey.js'

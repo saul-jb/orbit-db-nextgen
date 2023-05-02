@@ -3,15 +3,15 @@ import rmrf from 'rimraf'
 import { copy } from 'fs-extra'
 import { Log, Entry, Database, KeyStore, Identities } from '../../../src/index.js'
 import { KeyValue, KeyValuePersisted } from '../../../src/db/index.js'
+import { KeyValueIndexed } from '../../../src/db/index.js'
 import testKeysPath from '../../fixtures/test-keys-path.js'
 import connectPeers from '../../utils/connect-nodes.js'
 import waitFor from '../../utils/wait-for.js'
 import createHelia from '../../utils/create-helia.js'
 
-const OpLog = { Log, Entry }
 const keysPath = './testkeys'
 
-describe('KeyValue-persisted Database Replication', function () {
+describe('KeyValueIndexed Database Replication', function () {
   this.timeout(30000)
 
   let ipfs1, ipfs2
@@ -86,8 +86,8 @@ describe('KeyValue-persisted Database Replication', function () {
       console.error(err)
     }
 
-    kv1 = await KeyValuePersisted({ KeyValue, OpLog, Database, ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' })
-    kv2 = await KeyValuePersisted({ KeyValue, OpLog, Database, ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
+    kv1 = await KeyValueIndexed()({ ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' })
+    kv2 = await KeyValueIndexed()({ ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
 
     kv2.events.on('join', onConnected)
     kv2.events.on('update', onUpdate)
@@ -153,8 +153,8 @@ describe('KeyValue-persisted Database Replication', function () {
       console.error(err)
     }
 
-    kv1 = await KeyValuePersisted({ KeyValue, OpLog, Database, ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' })
-    kv2 = await KeyValuePersisted({ KeyValue, OpLog, Database, ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
+    kv1 = await KeyValueIndexed()({ ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' })
+    kv2 = await KeyValueIndexed()({ ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
 
     kv2.events.on('join', onConnected)
     kv2.events.on('update', onUpdate)
@@ -176,8 +176,8 @@ describe('KeyValue-persisted Database Replication', function () {
     await kv1.close()
     await kv2.close()
 
-    kv1 = await KeyValuePersisted({ KeyValue, OpLog, Database, ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' })
-    kv2 = await KeyValuePersisted({ KeyValue, OpLog, Database, ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
+    kv1 = await KeyValueIndexed()({ ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' })
+    kv2 = await KeyValueIndexed()({ ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
 
     const value0 = await kv2.get('init')
     deepStrictEqual(value0, true)

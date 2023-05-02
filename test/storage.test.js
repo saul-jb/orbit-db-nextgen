@@ -3,8 +3,8 @@ import rmrf from 'rimraf'
 import { copy } from 'fs-extra'
 import { Log, Identities, KeyStore } from '../src/index.js'
 import { IPFSBlockStorage, MemoryStorage, LRUStorage, ComposedStorage } from '../src/storage/index.js'
-import testKeysPath from './fixtures/test-keys-path.js'
 import createHelia from './utils/create-helia.js'
+import testKeysPath from './fixtures/test-keys-path.js'
 
 const keysPath = './testkeys'
 
@@ -39,23 +39,18 @@ describe('Storages', function () {
 
   const runTestWithStorage = async (storage) => {
     const amount = 100
-    const log1 = await Log(testIdentity, { logId: 'A', storage })
-    const log2 = await Log(testIdentity, { logId: 'A', storage })
+    const log1 = await Log(testIdentity, { logId: 'A', entryStorage: storage })
+    const log2 = await Log(testIdentity, { logId: 'A', entryStorage: storage })
     for (let i = 0; i < amount; i++) {
       await log1.append('hello' + i)
       await log2.append('hello' + i)
     }
-    // await log2.join(log1)
     const values = await log1.values()
     const heads = await log1.heads()
     strictEqual(heads.length, 1)
     strictEqual(values.length, amount)
     await log1.storage.clear()
     await log2.storage.clear()
-    // const values2 = await log2.values()
-    // const heads2 = await log2.heads()
-    // strictEqual(heads2.length, 0)
-    // strictEqual(values2.length, 0)
     await log1.storage.close()
     await log2.storage.close()
   }

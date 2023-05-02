@@ -1,5 +1,12 @@
-const KeyValue = async ({ OpLog, Database, ipfs, identity, address, name, access, directory, storage, meta, syncAutomatically }) => {
-  const database = await Database({ OpLog, ipfs, identity, address, name, access, directory, storage, meta, syncAutomatically })
+/**
+ * @namespace Database-KeyValue
+ * @memberof module:Database
+ * @description KeyValue Database
+ */
+import Database from '../database.js'
+
+const KeyValue = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate }) => {
+  const database = await Database({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate })
 
   const { addOperation, log } = database
 
@@ -31,7 +38,7 @@ const KeyValue = async ({ OpLog, Database, ipfs, identity, address, name, access
         keys[key] = true
         count++
         const hash = entry.hash
-        yield { hash, key, value }
+        yield { key, value, hash }
       } else if (op === 'DEL' && !keys[key]) {
         keys[key] = true
       }
